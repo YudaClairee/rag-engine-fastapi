@@ -24,16 +24,28 @@ def add_document(
     )
 
 
-def search(query: str, n_results: int = 5):
+def search(query: str, n_results: int = 5) -> list[dict[str, Any]]:
     results = _collection.query(
         query_texts=[query],
         n_results=n_results,
+        include=["documents", "metadatas", "distances"],
     )
 
     docs = results["documents"]
-    assert docs is not None
+    metadatas = results["metadatas"]
+    distances = results["distances"]
+    assert docs is not None and metadatas is not None and distances is not None
 
-    return [f"  [{i + 1}] {doc}" for i, doc in enumerate(docs[0])]
+    return [
+        {
+            "document_id": metadatas[0][i].get("document_id", ""),
+            "filename": metadatas[0][i].get("filename", ""),
+            "chunk_index": metadatas[0][i].get("chunk_index", 0),
+            "distance": distances[0][i],
+            "text": docs[0][i],
+        }
+        for i in range(len(docs[0]))
+    ]
 
 
 def get_document_chunks(doc_id: str) -> GetResult:

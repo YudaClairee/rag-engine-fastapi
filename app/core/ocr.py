@@ -8,15 +8,7 @@ _client: Mistral | None = None
 
 load_dotenv()
 
-
-def _get_client() -> Mistral:
-    global _client
-    if _client is None:
-        api_key = os.environ.get("MISTRAL_API_KEY")
-        if not api_key:
-            raise ValueError("MISTRAL_API_KEY is not set")
-        _client = Mistral(api_key=api_key)
-    return _client
+api_key = os.getenv("MISTRAL_API_KEY")
 
 
 def extract_text(file_bytes: bytes):
@@ -24,7 +16,7 @@ def extract_text(file_bytes: bytes):
 
     Returns extracted markdown text.
     """
-    client = _get_client()
+    client = Mistral(api_key=api_key)
 
     encoded = base64.standard_b64encode(file_bytes).decode("utf-8")
     source = {
